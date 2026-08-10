@@ -1,0 +1,10 @@
+.DS_Store
+*.bin
+*.dxe
+*.elf
+*.raw
+*.syx
+*.zip
+firmware/
+extracted-sections/
+work/
