@@ -6,6 +6,12 @@ The recurring state payload is `0x802` bytes inside a padded `0xabc`-byte
 full-duplex DSPI/eDMA frame. Sixteen `0x60`-byte unit records preserve track
 ordinal from ColdFire track `n` to SHARC unit `n`.
 
+Both directions are structurally present. ColdFire eDMA29 sends through
+DSPI2_SOUT while SHARC SPI2 RX fills alternating input images. At the same
+time, paired SHARC SPI2 TX buffers are sent back through DSPI2_SIN and drained
+by ColdFire eDMA28. Selected ColdFire-to-SHARC state coordinates are proved;
+the runtime meaning of the SHARC-to-ColdFire return content remains open.
+
 The ColdFire publication path stages the previous transmit buffer before
 rebuilding the next state packet. It is tied to a level-5 interrupt that is
 software-forced from a level-6 eDMA-completion path. The bounded static model

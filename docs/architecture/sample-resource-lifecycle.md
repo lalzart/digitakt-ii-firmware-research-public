@@ -174,16 +174,20 @@ This supports a bounded “no attributable probe set from these photographs”
 result. It does not prove that the connection is absent or that no board-level
 measurement is possible with additional documentation or access.
 
-## What this means for a Flex-like direction
+## Architectural implication
 
-The recovered architecture does not reveal a dormant Flex subsystem or an
-existing direct recorder-buffer alias. A plausible conservative workflow is:
+The recovered route separates capture staging, finalized file representation,
+Project slot identity, Project backing, transport publication and SHARC
+resource state. It is therefore better understood as a managed sample-resource
+lifecycle than as one shared recorder/playback buffer.
+
+A workflow consistent with the known boundaries would be:
 
 1. finalize recorder bytes into a temporary Project sample;
 2. publish and play that backing without mutation; and
 3. release it only after an explicit stop and closed lifetime rule.
 
-Continuous live overwrite or seamless replacement would require deliberately
+Content replacement while playback is active would require deliberately
 closing ownership, pinning, synchronization, replacement, receiver visibility
 and UI/lifecycle behavior. This is an engineering implication of the recovered
 boundaries, not a proved feature design or authorization to modify firmware.

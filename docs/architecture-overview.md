@@ -20,8 +20,11 @@ Official OS 1.15C SysEx
 ColdFire MAIN
   UI / persistence / Project and Sound objects / sequencing
   -> recurring per-track transform
-  -> 0x802-byte payload in a 0xabc-byte DSPI2/eDMA frame
-  -> 16 unit records, one per track
+  -> 0x802-byte payload in a 0xabc-byte full-duplex DSPI2/eDMA frame
+
+Inter-processor exchange
+  ColdFire SOUT/eDMA29 -> SHARC SPI2 RX -> 16 unit records, one per track
+  ColdFire SIN/eDMA28  <- SHARC SPI2 TX <- paired return buffers
 
 SHARC
   SPI2 completed-image receive
@@ -71,6 +74,13 @@ zero additional reusable bytes are proved.
 The ColdFire side owns user-facing objects, persistence and the recurring
 construction of track state. Sixteen track records are transformed into a
 `0x802`-byte payload inside a padded `0xabc`-byte full-duplex frame.
+
+The transaction carries both directions at once. ColdFire eDMA29/SOUT supplies
+the outgoing state frame, while SHARC SPI2 RX fills alternating completed-image
+buffers. In the reverse direction, paired SHARC SPI2 TX buffers are transmitted
+while ColdFire SIN/eDMA28 drains the return data. The CPU-to-DSP transport and
+selected cross-domain state coordinates are mapped; the return content's
+runtime meaning has not been assigned.
 
 The publisher stages the previous transmit buffer before rebuilding the next
 one. A level-6 eDMA-completion path software-forces a level-5 publication
@@ -245,8 +255,8 @@ published or implied.
 - Local CPU and SHARC endpoints are not a physical join without the external
   bridge and occurrence.
 - DMA/SPORT configuration is not an observed asynchronous fetch or audio proof.
-- The sample route does not establish a dormant Flex machine, zero-copy backing
-  ownership or safe live replacement.
+- The sample route does not establish shared recorder/Project backing,
+  zero-copy ownership or safe live replacement.
 - Static update code does not prove physical recovery after a failed write.
 
 ## Subsystem dossiers

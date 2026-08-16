@@ -19,7 +19,7 @@ that an offline result is safe on hardware.
 |---|---|---|
 | Update and boot | SysEx/ELE3 layers, MAIN/updater/SHARC domains, validation and staged-slot rewrite | Reset-time updater selection, rollback and physical recovery |
 | ColdFire control | Project/Sound objects, persistence, active-pattern transitions, recurring per-track publication | Runtime provider content, final ordering and many public meanings |
-| Recurring CPU-to-DSP state | `0x802`-byte payload in a `0xabc`-byte DSPI2/eDMA frame; 16 track-preserving unit records | Numeric clock rate, physical transaction capture and paired device occurrence |
+| Recurring inter-processor state | Full-duplex `0xabc`-byte DSPI2/SPI2 frame: CPU-to-DSP state plus paired DSP-to-CPU return buffers | Return-content meaning, numeric clock rate, physical capture and paired device occurrence |
 | SRC machines | Seven public identities map to six SHARC selector roles; Oneshot, Werp and Slice have bounded public-to-role provenance | Complete machine algorithms and lawful live state |
 | Project samples | Recorder save format, Project-slot indirection, CPU Rapid-GPIO endpoint, SHARC LP0/DMA30 receiver and first signed read | The external bridge, wire packing, paired occurrence and playback-scoped backing lifetime |
 | DSP processing | Selector topology, shared buffers, coefficient schedules, ROOT gain stage and selected output-bank transform | Complete named effects, audibility, timing headroom and hardware behavior |
@@ -29,18 +29,16 @@ that an offline result is safe on hardware.
 ## The architecture at a glance
 
 ```text
-ColdFire MAIN
+ColdFire MAIN                                      SHARC
   UI / project state / persistence / sequencing
-       |
-       | recurring 16-track state publication
-       v
-  DSPI2 + eDMA29/28 ---- physical link not captured ----> SHARC SPI2 RX
-                                                         16 units / 32 lanes
-                                                         six selector roles
-                                                         shared P/B processing
-                                                         scatter -> ROOT
-                                                         selected output bank
-                                                         DMA10 -> SPORT4A
+  DSPI2 SOUT + eDMA29 === recurring state ======> SPI2 RX
+  DSPI2 SIN  + eDMA28 <=== paired return data ==== SPI2 TX
+                                                   16 units / 32 lanes
+                                                   six selector roles
+                                                   shared P/B processing
+                                                   scatter -> ROOT
+                                                   selected output bank
+                                                   DMA10 -> SPORT4A
 
 Separate Project-sample path
   recorder service -> saved sample file -> Project slot/backing
@@ -48,7 +46,30 @@ Separate Project-sample path
   -> sample-resource records/pages -> selected base -> first sample read
 ```
 
-## The newest result: sample ownership rather than a hidden Flex machine
+## Two inter-processor paths—and the remaining bridge problem
+
+The current map contains two distinct ways for the processors to exchange
+state:
+
+1. **Recurring state exchange is full-duplex.** ColdFire sends a `0x802`-byte
+   state payload inside a `0xabc`-byte DSPI2 frame while the SHARC sends paired
+   buffers back during the same transaction. The transport geometry and
+   selected CPU-to-DSP fields are mapped; the meaning of the DSP-to-CPU return
+   content, the numeric bus rate and a captured hardware occurrence remain
+   open.
+2. **Project samples use a separate publication route.** The CPU endpoint is
+   Rapid GPIO; the SHARC endpoint is LP0/DMA30. Both ends are mapped locally,
+   but the external peer or PCB logic between them, wire packing and a paired
+   transaction are not.
+
+Closing the second join now needs new board-level evidence rather than more
+ordinary firmware tracing: for example a schematic, netlist or layout, service
+documentation, continuity or X-ray evidence, or safely accessible nodes whose
+identity and electrical limits can be established. Existing board photographs
+show the relevant balls disappearing beneath the BGA packages and do not expose
+an attributable probe set.
+
+## Sample ownership is a separate resource architecture
 
 The sample campaign now reaches considerably farther than the original public
 snapshot:
@@ -64,12 +85,11 @@ snapshot:
 - the SHARC receives through LP0/DMA30, parses the resource update and reaches a
   selected signed 16-bit sample read.
 
-What is deliberately **not** claimed is just as important. The recorder buffer
-and Project backing are not the same proved object; the external CPU-to-SHARC
-bridge is still unidentified; and the retained static start path stops before
-it can prove whether active playback pins Project backing. This rejects an
-inspected candidate for an existing direct zero-copy route, not the possibility
-of a future adapter or a simpler immutable temporary-sample workflow.
+The important architectural observation is the separation between capture
+staging, finalized file representation, Project slot identity, Project backing
+and SHARC resource state. These are not one proved shared sample buffer. The
+external CPU-to-SHARC join is still unidentified, and the retained static start
+path stops before it can prove whether active playback pins Project backing.
 
 See [Project sample-resource lifecycle](docs/architecture/sample-resource-lifecycle.md).
 
@@ -100,20 +120,6 @@ docs/architecture-overview.md     complete system map
 docs/architecture/                subsystem dossiers
 docs/research-method.md           evidence vocabulary and publication policy
 ```
-
-## Related independent work
-
-Two Octatrack projects helped set the presentation standard for this snapshot:
-
-- [OctaMax](https://github.com/mxldyn/octamax) publishes a broad architecture
-  notebook, reverse-engineering tools and experimental patches.
-- [OctaBam](https://github.com/sambanks/octabam) publishes original DSP56300
-  effects alongside explicit build, hardware-test and resource status.
-
-They target a different instrument, processor family and firmware lineage, so
-their findings are not evidence for Digitakt II. The useful precedent here is
-editorial: lead with what works or is mapped, show the architecture, and keep
-the unproved boundary visible beside each result.
 
 ## What this repository is—and is not
 
