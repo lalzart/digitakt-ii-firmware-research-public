@@ -103,6 +103,59 @@ scaling match the accepted DSP slot-`0x19` candidate. Generic adjustment index
 occurrence content/order is absent. `CROSS-DOMAIN` public-value identity and a
 lawful nonzero-low-byte fractional index therefore remain open.
 
+## Project sample-resource receiver boundary
+
+Separate from the recurring state frame, SHARC startup registers event 4 over
+a `0x401`-dword receive block. Its `-1` arm parses five dwords into a
+1,025-entry sample-resource table; a page arm copies 4 KiB through the shared
+address transform. Selection installs one effective base and reaches a signed
+16-bit first read and bounded multiply.
+
+CPU-068 closes CPU-066's endpoint to the MCF5441x Rapid-GPIO block, not
+FlexBus. MAIN enables `RGPIOBAR=0x8c000035`, drives each byte on RGPIO15..8,
+toggles RGPIO7 high-to-low, and polls RGPIO0 ready once per dword. Pin mux,
+direction, enable, and slew are exact; numeric rate and board nets are not.
+
+Separately, the SHARC support root closes to LP0 plus DMA30. Source `0x51`
+reads LP0_RX and stores the unchanged dword into the indexed transfer buffer
+before event 4 and re-arm. Both local endpoints are `STATIC-AUTH`; their
+matching direction and 1,025-dword geometry remain `INFERENCE`, not
+`CROSS-DOMAIN`. No authenticated external peer/bridge, board wiring,
+wire-byte packing, or paired occurrence joins RGPIO pins to LP0, and no
+public-channel, source-numeric, or hardware claim follows.
+
+On the CPU side, the publication mutex covers the control word plus the fixed
+1,024-dword transaction and keeps the caller's scratch or descriptor block
+live until return. It is not a Project backing-group lifetime pin. A
+higher-priority endpoint-0 command can remove the final group membership and
+make or merge its range reusable before its later zero invalidation attempts
+that mutex. The whole-reset path is a negative control because all 1,024
+invalidations return before group-vector destruction. This CPU-local permitted
+overlap is not a paired occurrence, external acknowledgment, receiver effect,
+or coherent/unsafe playback result.
+
+The same SHARC receive descriptor is re-armed only after the selected parser
+returns, protecting input-buffer reuse. Destination publication is in place:
+the five resource fields are written and read in different sequential orders,
+the 4 KiB page has no pointer swap or generation commit, and the installed base
+persists separately. DSP-065 authenticates core-0 SEC reset and source-`0x51`
+target/enable setup, but the official definition supplies no post-reset
+`SEC0_SCTL81.PRIO` value. The retained literal-writer screen finds no direct
+PRIO use, and the dispatcher target is unrepresented, so all six
+publication/reader windows remain unknown. This proves neither exclusion,
+permitted interleaving, wholly-old/wholly-new visibility, nor an occurring
+race. Coherence and matching occurrence remain later gates; local completion
+is not an external acknowledgment authorizing CPU backing reuse.
+
+Authenticated top-face photographs identify U1 as an MCF54415 and U9 as an
+ADSP-21569. All declared Rapid-GPIO and LP0 signal balls terminate first
+beneath those BGA packages; visible fanouts stop at vias or hidden layers, and
+none of the inventoried test-point/rail/ground observations has a documented
+transport identity. This is a photo-scoped `HARDWARE + NEGATIVE-BOUNDED` stop:
+it does not prove that the nets are absent. No exact or finite exposed candidate
+set survives, so the supplied photographs alone do not justify probe purchase
+or attachment for this join.
+
 ## Known stop
 
 Transfer timing, physical signal behavior, and external content/order beyond

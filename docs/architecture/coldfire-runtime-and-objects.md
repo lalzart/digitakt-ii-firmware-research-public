@@ -84,17 +84,64 @@ posted as a type-6 main-loop event; its fixed target and sole factory construct
 independently allocated first-free Project slot at `+0x5c`.
 
 The prompt's later track-key handler captures those two fields, resolves a
-16-byte descriptor, admits or reconstructs it through Project RAM, and writes
-sample parameter `0xcd` to receiver state `+0x4c`. Authentic vtables bound the
-complete active-track writer family to exactly two receiver targets. The
-previous report's `SampleListView+0x58/+0x5c` owner and closed-file versus
-independent-selection nonjoin are superseded; that report remains preserved.
+16-byte four-word provider identity, and enters Project-RAM admission. The
+record contains provider entry/key, load extent, and change-discriminator
+roles but no backing pointer. Admission has exact unchanged, matching-group
+reuse, and new provider-read/mapping branches. Only success copies the identity
+into the Project table.
 
-This is an exact static path-identity and callback-order bridge, not a PCM
-identity bridge. No PCM pointer, backing owner, file handle, or pre-save
-descriptor crosses the boundary. Runtime scheduling, filesystem success,
-actual path/slot content, user track-key occurrence, Project-RAM backing, DSP
-publication, hardware behavior, and feature feasibility remain open.
+Parameter `0xcd` stores only the signed 16-bit Project slot at receiver `+0x4c`
+through exactly two targets, and does so after both success and load-error
+completion. A later CPU chain reads that slot and resolves it through global
+Project-RAM state to canonical identity, derived extent, backing-record base,
+and a flag. The track therefore holds slot identity, while retained or newly
+loaded backing lives behind it.
+
+The prior `SampleListView` owner/nonjoin is superseded, with history preserved.
+
+Recorder-native PCM does not appear as a stable MAIN-owned base. Command 4
+requests selector/start/count and returns a transient shared response aperture;
+the save writer copies its valid mono two-byte/frame or stereo four-byte/frame
+content to separate staging before releasing the service mutex. Native owner,
+normalization, invalidation, signedness, scaling, byte order, and channel order
+remain beyond that service boundary.
+
+On the backing side, provider content stays one lane or is transformed by an
+alternating 16-bit-word split into two contiguous lanes. A five-word slot
+descriptor is then submitted in a fixed 4 KiB transaction to an MMIO-ending
+service. No exact pointer, handle, owner, descriptor, or lifetime joins this
+path to the recorder response/native backing. Direct zero-copy reuse is thus a
+bounded negative; a new adapter is not excluded.
+
+CPU-069 closes the CPU-local publication-lifetime question asymmetrically.
+Provider scratch pages and 4 KiB descriptor blocks stay allocated through each
+synchronous mapping call, but the global Project backing group and range are
+not pinned by the mapping mutex. A priority-5 endpoint command can preempt the
+priority-2 publication and remove the last membership; group erasure and range
+merge precede the invalidation call that later waits on the mutex. This proves
+an exact permitted interleaving, not that it occurred, corrupted data, reached
+the receiver, affected playback, or is safe or unsafe on hardware.
+
+CPU-070 tests the narrower possibility of a separate playback-scoped owner. An
+authentic type-`0x0c` start route reaches two bounded per-track scheduling-state
+builders. Their complete fifteen-call universe, repaired getter subtree, local
+record pool, and scheduler-subowner refcount are closed. The refcount is real
+but scheduler-local: no authenticated field or edge joins it to selected slot
+S, the Project group/range, or an independent backing snapshot. More
+fundamentally, the start loop's track ordinal/live Project-record pointers do
+not join at one runtime identity to the distinct receiver carrying S at
+`+0x4c`. Outcome R-D therefore stops before pin/no-pin can be selected. An
+external/runtime owner remains possible; absence of a guard on final release
+does not prove an occurring unsafe playback release.
+
+The intervening accepted saved-file path is byte-exact. Its 64-byte header
+records mono/stereo, payload byte count, and 48 kHz; recorder payload bytes are
+written and read unchanged. Mono retains order. Stereo's first/second 16-bit
+frame words become lane A/B while byte pairs and frame order survive. Numeric
+signedness, scaling, byte significance, public L/R, failure cleanup, hardware,
+and feature feasibility remain open. The downstream SHARC descriptor/page
+receiver and first signed local read now close internally, but no exact owner
+or byte-packing edge joins this CPU MMIO endpoint to that receiver.
 
 ## Active-pattern transition layer
 

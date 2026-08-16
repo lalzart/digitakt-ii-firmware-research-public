@@ -35,6 +35,7 @@ mapped.
 | Complete container/package compatibility | unproved |
 | Recovery/rollback | bounded `H-OPAQUE`; no physical recovery claim |
 | Hardware execution and timing | absent |
+| Project-backing replacement lifetime | CPU-local early final-owner loss/reuse is permitted; playback pin/no-pin, occurrence, receiver visibility and replacement safety remain unproved |
 | Audibility and public behavior | absent |
 | Safety and deployment | unauthorized and unproved |
 

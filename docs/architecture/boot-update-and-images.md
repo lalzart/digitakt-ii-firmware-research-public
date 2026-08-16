@@ -16,6 +16,19 @@ recovery, hardware timing, or safe deployment.
   ColdFire conclusions are checked against authentic bytes because unsupported
   instructions can degrade decompiler output.
 
+The authenticated OS 1.15C transport is a 1,708,064-byte SysEx stream. Its
+decoded ELE3 container is 1,347,728 bytes and carries five sections. The three
+domains used by the accepted architecture are:
+
+| Section | Stored role | Runtime destination / expanded size |
+|---|---|---|
+| 3 | ColdFire MAIN | `0x40000400` / 3,177,312 bytes |
+| 4 | ColdFire updater | `0x80000400` / 32,776 bytes |
+| 7 | SHARC loader/application content | 320,780 decoded bytes |
+
+These are package and runtime coordinates, not a claim that any region can be
+re-encoded or safely replaced.
+
 ## ColdFire update path
 
 MAIN validates checksum, minimum-version, and cryptographic-trailer relations
