@@ -16,6 +16,7 @@ do not create it.
 | [Output and DMA](output-and-dma.md) | How do final banks reach DMA10/SPORT4A, and where does observation stop? |
 | [Host-software boundary](host-software-boundary.md) | What is established inside Overbridge without claiming hardware provenance? |
 | [Modification gates](modification-gates.md) | What offline modifications are proved, and which gates remain independent? |
+| [OS 1.16 boot and container](os-1-16-boot-and-container.md) | What does the 1.16 container carry, how does MAIN reach its first task, what is the bootstrap domain, and where do the co-processors and the control surface sit? |
 
 These are concise synthesis documents, not firmware substitutes. Detailed
 private evidence, raw tool output, disassembly, and machine-local provenance
